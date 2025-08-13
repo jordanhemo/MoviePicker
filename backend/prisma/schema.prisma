@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  passwordHash      String
+  location          String?           // Country/region
+  profileImage      String?
+  isActive          Boolean           @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  streamingServices UserStreamingService[]
+  watchlist         WatchlistItem[]
+  preferences       UserPreferences?
+
+  @@map("users")
+}
+
+model StreamingService {
+  id          String   @id @default(cuid())
+  tmdbId      Int      @unique // TMDB provider ID from watch providers API
+  name        String   // Provider name from TMDB
+  displayName String   // User-friendly display name
+  logoUrl     String?  // Provider logo URL
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users UserStreamingService[]
+
+  @@map("streaming_services")
+}
+
+model UserStreamingService {
+  id                  String            @id @default(cuid())
+  userId              String
+  streamingServiceId  String
+  isActive            Boolean           @default(true)
+  addedAt             DateTime          @default(now())
+
+  // Relations
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  streamingService    StreamingService  @relation(fields: [streamingServiceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, streamingServiceId])
+  @@map("user_streaming_services")
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  movieId     Int      // TMDB movie ID
+  movieTitle  String
+  moviePoster String?
+  addedAt     DateTime @default(now())
+  isWatched   Boolean  @default(false)
+  watchedAt   DateTime?
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@map("watchlist_items")
+}
+
+model UserPreferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  favoriteGenres        String[] // Array of genre IDs
+  preferredLanguage     String?
+  adultContent          Boolean  @default(false)
+  notificationEnabled   Boolean  @default(true)
+  theme                 String   @default("dark")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
