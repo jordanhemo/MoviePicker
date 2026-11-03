@@ -154,7 +154,7 @@ If you need to rollback these changes:
 
 ## Notes
 
-- The TMDB API key used is: `REDACTED`
+- The TMDB API key is read from the `TMDB_API_KEY` environment variable (see `backend/env.example`)
 - Streaming services are fetched from TMDB's watch providers endpoint
 - The app now supports JustWatch attribution as required by TMDB's terms of service
 - All changes maintain backward compatibility with existing user data

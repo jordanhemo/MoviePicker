@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const TMDB_API_BASE = 'https://api.themoviedb.org/3';
-const TMDB_API_KEY = process.env.TMDB_API_KEY || 'REDACTED'; // Fallback for development
+const TMDB_API_KEY = process.env.TMDB_API_KEY || '';
 
 export interface TMDBProvider {
   provider_id: number;
